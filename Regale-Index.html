@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon1.png">
+<title>Regal-Belastungsschild Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 20px 0;
+        color: #333;
+        width: 100%;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: row;
+        gap: 50px;
+        padding: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    .excel-container, .schild-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .excel-container {
+        min-width: 450px;
+        flex: 1;
+    }
+
+    .excel-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .excel-table th {
+        background-color: #f2f2f2;
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #ddd;
+        font-weight: bold;
+    }
+
+    .excel-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        position: relative;
+    }
+
+    .excel-cell {
+        width: 100%;
+        border: none;
+        padding: 5px;
+        font-size: 14px;
+        background: transparent;
+        min-height: 20px;
+    }
+
+    .excel-cell:focus {
+        outline: 2px solid #007BFF;
+        background-color: #f0f8ff;
+    }
+
+    .excel-row:hover {
+        background-color: #f9f9f9;
+    }
+
+    .import-section {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 5px;
+    }
+
+    .import-section h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .import-textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        resize: vertical;
+    }
+
+    .schild-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .schild {
+        width: 400px;
+        height: 500px;
+        border: 2px solid #000;
+        padding: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        background: #fff;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .logo {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+    }
+
+    .logo img {
+        max-width: 100%;
+        height: auto;
+        max-height: 80px;
+        object-fit: contain;
+    }
+
+    .info {
+        font-size: 16px;
+        line-height: 1.6;
+        text-align: left;
+        width: 100%;
+    }
+
+    .info-line {
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .info-label {
+        font-weight: bold;
+        min-width: 150px;
+    }
+
+    .info-value {
+        text-align: right;
+        flex: 1;
+    }
+
+    .controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        padding: 10px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        background: #007BFF;
+        color: white;
+        border-radius: 5px;
+        transition: background 0.3s;
+        flex: 1;
+        min-width: 120px;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+
+    .btn-print {
+        background: #28a745;
+    }
+
+    .btn-print:hover {
+        background: #218838;
+    }
+
+    .btn-export {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .btn-export:hover {
+        background: #e0a800;
+    }
+
+    .warning {
+        color: #666;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 12px;
+        font-style: italic;
+    }
+
+    .instructions {
+        background: #e7f3ff;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .schild {
+            width: 350px;
+            height: 450px;
+        }
+        
+        .info-line {
+            flex-direction: column;
+        }
+        
+        .info-value {
+            text-align: left;
+            margin-top: 2px;
+        }
+        
+        .controls {
+            flex-direction: column;
+        }
+    }
+</style>
+</head>
+<body>
+
+<h1>Excel-kompatibler Regal-Belastungsschild Generator</h1>
+
+<div class="container">
+    <div class="excel-container">
+        <div class="instructions">
+            <strong>Anleitung:</strong> Sie können Daten direkt aus Excel kopieren (Strg+C) und in die Tabelle einfügen (Strg+V) oder die Import-Funktion nutzen.
+        </div>
+        
+        <table class="excel-table" id="excelTable">
+            <thead>
+                <tr>
+                    <th width="40%">Eigenschaft</th>
+                    <th width="40%">Wert</th>
+                    <th width="20%">Einheit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="excel-row">
+                    <td>Hersteller</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-hersteller">Regaltechnik Fuchs</div></td>
+                    <td>-</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Baujahr</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-baujahr">2023</div></td>
+                    <td>-</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Feldbreite</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-feldbreite">1200</div></td>
+                    <td>mm</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Regalhöhe</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-regalhoehe">2500</div></td>
+                    <td>mm</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Regaltiefe</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-regaltiefe">800</div></td>
+                    <td>mm</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Anzahl Ebenen</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-anzahlEbenen">5</div></td>
+                    <td>-</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>max. Fachlast</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-fachlast">500</div></td>
+                    <td>kg</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>max. Feldlast</td>
+                    <td><div class="excel-cell" contenteditable="true" id="excel-feldlast">2500</div></td>
+                    <td>kg</td>
+                </tr>
+                <tr class="excel-row">
+                    <td>Firmenadresse</td>
+                    <td colspan="2"><div class="excel-cell" contenteditable="true" id="excel-adresse">Musterstraße 1, 12345 Musterstadt</div></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="import-section">
+            <h3>Daten aus Excel importieren</h3>
+            <textarea class="import-textarea" id="excelImport" placeholder="Kopieren Sie hier Ihre Daten aus Excel (Tab-getrennt)"></textarea>
+            <button onclick="importFromExcel()" style="margin-top: 10px;">Daten importieren</button>
+        </div>
+        
+        <div class="controls">
+            <button onclick="updateSchild()">Schild aktualisieren</button>
+            <button class="btn-export" onclick="exportToExcel()">Für Excel exportieren</button>
+            <button class="btn-print" onclick="drucken()">Schild drucken</button>
+        </div>
+        <div class="warning">Das Logo wird von einer externen Quelle geladen</div>
+    </div>
+
+    <div class="schild-container">
+        <div class="schild" id="schild">
+            <div class="logo">
+                <img id="logoImg" src="https://mir-s3-cdn-cf.behance.net/project_modules/max_632_webp/ad2a5525986575.56359bf1a04d4.jpg" alt="Regaltechnik Fuchs Logo">
+            </div>
+            <div class="info" id="info">
+                <div class="info-line">
+                    <span class="info-label">Hersteller:</span>
+                    <span class="info-value" id="schild-hersteller">Regaltechnik Fuchs</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Baujahr:</span>
+                    <span class="info-value" id="schild-baujahr">2023</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Feldbreite:</span>
+                    <span class="info-value" id="schild-feldbreite">1200 mm</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Regalhöhe:</span>
+                    <span class="info-value" id="schild-regalhoehe">2500 mm</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Regaltiefe:</span>
+                    <span class="info-value" id="schild-regaltiefe">800 mm</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Anzahl Ebenen:</span>
+                    <span class="info-value" id="schild-anzahlEbenen">5</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">max. Fachlast:</span>
+                    <span class="info-value" id="schild-fachlast">500 kg</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">max. Feldlast:</span>
+                    <span class="info-value" id="schild-feldlast">2500 kg</span>
+                </div>
+                <div class="info-line">
+                    <span class="info-label">Firmenadresse:</span>
+                    <span class="info-value" id="schild-adresse">Musterstraße 1, 12345 Musterstadt</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Funktion zum Aktualisieren des Schilds
+function updateSchild() {
+    // Werte aus der Excel-Tabelle holen
+    const hersteller = document.getElementById('excel-hersteller').textContent || '-';
+    const baujahr = document.getElementById('excel-baujahr').textContent || '-';
+    const feldbreite = document.getElementById('excel-feldbreite').textContent || '-';
+    const regalhoehe = document.getElementById('excel-regalhoehe').textContent || '-';
+    const regaltiefe = document.getElementById('excel-regaltiefe').textContent || '-';
+    const anzahlEbenen = document.getElementById('excel-anzahlEbenen').textContent || '-';
+    const fachlast = document.getElementById('excel-fachlast').textContent || '-';
+    const feldlast = document.getElementById('excel-feldlast').textContent || '-';
+    const adresse = document.getElementById('excel-adresse').textContent || '-';
+
+    // Werte in das Schild einfügen
+    document.getElementById('schild-hersteller').textContent = hersteller;
+    document.getElementById('schild-baujahr').textContent = baujahr;
+    document.getElementById('schild-feldbreite').textContent = feldbreite + ' mm';
+    document.getElementById('schild-regalhoehe').textContent = regalhoehe + ' mm';
+    document.getElementById('schild-regaltiefe').textContent = regaltiefe + ' mm';
+    document.getElementById('schild-anzahlEbenen').textContent = anzahlEbenen;
+    document.getElementById('schild-fachlast').textContent = fachlast + ' kg';
+    document.getElementById('schild-feldlast').textContent = feldlast + ' kg';
+    document.getElementById('schild-adresse').textContent = adresse;
+}
+
+// Funktion zum Importieren von Excel-Daten
+function importFromExcel() {
+    const importText = document.getElementById('excelImport').value.trim();
+    if (!importText) return;
+    
+    const rows = importText.split('\n');
+    
+    // Nur die ersten 9 Zeilen verwenden (entsprechend unserer Tabelle)
+    for (let i = 0; i < Math.min(rows.length, 9); i++) {
+        const cells = rows[i].split('\t'); // Tab-getrennte Werte
+        
+        if (cells.length >= 2) {
+            const value = cells[1].trim(); // Zweite Spalte ist der Wert
+            
+            // Den Wert in die entsprechende Zelle einfügen
+            const cellIds = [
+                'excel-hersteller', 'excel-baujahr', 'excel-feldbreite', 
+                'excel-regalhoehe', 'excel-regaltiefe', 'excel-anzahlEbenen',
+                'excel-fachlast', 'excel-feldlast', 'excel-adresse'
+            ];
+            
+            if (cellIds[i]) {
+                document.getElementById(cellIds[i]).textContent = value;
+            }
+        }
+    }
+    
+    // Schild aktualisieren
+    updateSchild();
+    
+    // Erfolgsmeldung
+    alert('Daten erfolgreich importiert!');
+}
+
+// Funktion zum Exportieren für Excel
+function exportToExcel() {
+    const rows = [];
+    
+    // Daten aus der Tabelle sammeln
+    const properties = [
+        'Hersteller', 'Baujahr', 'Feldbreite', 'Regalhöhe', 'Regaltiefe',
+        'Anzahl Ebenen', 'max. Fachlast', 'max. Feldlast', 'Firmenadresse'
+    ];
+    
+    const cellIds = [
+        'excel-hersteller', 'excel-baujahr', 'excel-feldbreite', 
+        'excel-regalhoehe', 'excel-regaltiefe', 'excel-anzahlEbenen',
+        'excel-fachlast', 'excel-feldlast', 'excel-adresse'
+    ];
+    
+    const units = ['-', '-', 'mm', 'mm', 'mm', '-', 'kg', 'kg', '-'];
+    
+    for (let i = 0; i < properties.length; i++) {
+        const value = document.getElementById(cellIds[i]).textContent;
+        rows.push(`${properties[i]}\t${value}\t${units[i]}`);
+    }
+    
+    // Text für die Zwischenablage erstellen
+    const exportText = rows.join('\n');
+    
+    // In die Zwischenablage kopieren
+    navigator.clipboard.writeText(exportText)
+        .then(() => {
+            alert('Daten wurden in die Zwischenablage kopiert! Sie können sie jetzt in Excel einfügen.');
+        })
+        .catch(err => {
+            console.error('Fehler beim Kopieren: ', err);
+            // Fallback: Textarea erstellen und kopieren
+            const textArea = document.createElement('textarea');
+            textArea.value = exportText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Daten wurden in die Zwischenablage kopiert! Sie können sie jetzt in Excel einfügen.');
+        });
+}
+
+// Funktion zum Drucken
+function drucken() {
+    const schildElement = document.getElementById('schild');
+    const originalDisplay = schildElement.style.display;
+    
+    // Schild für den Druck vorbereiten
+    schildElement.style.display = 'block';
+    
+    // Druckdialog öffnen
+    window.print();
+    
+    // Zurück zur ursprünglichen Anzeige
+    schildElement.style.display = originalDisplay;
+}
+
+// Automatische Aktualisierung bei Eingabe
+document.querySelectorAll('.excel-cell').forEach(cell => {
+    cell.addEventListener('input', updateSchild);
+});
+
+// Tab-Taste für Navigation zwischen Zellen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const cells = document.querySelectorAll('.excel-cell');
+        const currentCell = document.activeElement;
+        let currentIndex = Array.from(cells).indexOf(currentCell);
+        
+        if (currentIndex !== -1) {
+            let nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1;
+            if (nextIndex < 0) nextIndex = cells.length - 1;
+            if (nextIndex >= cells.length) nextIndex = 0;
+            
+            cells[nextIndex].focus();
+        }
+    }
+});
+
+// Fallback-Logo falls das Hauptlogo nicht geladen werden kann
+document.getElementById('logoImg').onerror = function() {
+    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMjAwIDYwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMDAzMzY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJFR0FMVEVDSE5JSyBGVUNIUzwvdGV4dD4KPHRleHQgeD0iMTAwIiB5PSI0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TU9OVEFHRVdBUlRVTkdTU0VSVklDRTwvdGV4dD4KPC9zdmc+';
+};
+
+// Initiales Schild erstellen
+window.onload = function() {
+    updateSchild();
+};
+</script>
+
+</body>
+</html>
