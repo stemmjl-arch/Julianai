@@ -1,0 +1,55 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: radial-gradient(ellipse at bottom, #0b0c1a 0%, #1a1a3d 100%);
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* kleine animierte Sterne */
+body::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 
+        50vw 10vh white,
+        20vw 80vh white,
+        70vw 40vh white,
+        90vw 60vh white,
+        30vw 20vh white,
+        60vw 90vh white;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+}
+
+.countdown-container {
+    position: relative;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#countdown {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    font-size: 1.5rem;
+}
+
+#countdown div {
+    padding: 10px;
+}
